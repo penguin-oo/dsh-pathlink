@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>dsh-pathlink 功能演示</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #101318;
+    --panel: #171b21;
+    --bubble: #1c222b;
+    --text: #e8eaed;
+    --muted: #9aa3ad;
+    --brand: #4d6bfe;
+    --border: rgba(255, 255, 255, 0.1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.7 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .scene { margin-bottom: 32px; }
+  .scene-title { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+  .bubble {
+    background: var(--bubble);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .bubble .role { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+  code {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 12.5px;
+  }
+  .dshpl {
+    cursor: pointer;
+    text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+    text-underline-offset: 3px;
+  }
+  .dshpl:hover { color: var(--brand); text-decoration-color: var(--brand); }
+  .dshpl.link { color: #7aa2ff; }
+  .hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .hint kbd {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0 6px;
+    font-family: inherit;
+    font-size: 11.5px;
+  }
+  .toast-row { display: flex; justify-content: center; padding: 20px 0 8px; }
+  .toast {
+    background: rgba(28, 30, 34, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+    padding: 7px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .footer { color: var(--muted); font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>dsh-pathlink 功能演示</h1>
+  <div class="sub">DeepSeek Harness 聊天消息中的文件路径与链接：Ctrl/⌘+点击打开</div>
+
+  <div class="scene">
+    <div class="scene-title">① 消息中的路径与链接自动识别（虚线标记）</div>
+    <div class="bubble">
+      <div class="role">assistant</div>
+      <div id="demo-bubble">
+        错误已修复，具体改动在 D:\deepseekhrness\dsh-pathlink\src\client\index.js 里，
+        同时更新了 <code>./package.json</code> 与 <code>lib/schemas.js</code>。
+        文档见 https://github.com/penguin-oo/dsh-pathlink ，构建后即可验证。
+      </div>
+      <div class="hint"><kbd>Ctrl</kbd> + 点击路径 → 在文件夹中定位该文件；<kbd>Ctrl</kbd> + 点击链接 → 浏览器新标签页打开</div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-title">② 路径不存在时的提示（toast）</div>
+    <div class="bubble">
+      <div class="role">assistant</div>
+      <div id="demo-bubble-2">请检查 C:\nope\missing\file.xyz 是否已被移动。</div>
+    </div>
+    <div class="toast-row"><div class="toast" id="demo-toast">路径不存在：C:\nope\missing\file.xyz</div></div>
+  </div>
+
+  <div class="footer">演示页仅展示识别与交互样式；实际行为由 dsh-pathlink 插件在 DSH Web 中提供。</div>
+</div>
+
+<script src="./demo-recognizer.js"></script>
+<script>
+  // Reuse the production recognizer to wrap the two demo bubbles exactly as
+  // the plugin does (dotted underline + data attributes), then convert the
+  // link spans to real <a> targets for the static demo.
+  function decorate(elementId) {
+    const root = document.getElementById(elementId);
+    const text = root.textContent;
+    const matches = DshplRecognize.recognize(text);
+    if (matches.length === 0) return;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    for (const match of matches) {
+      if (match.start > cursor) fragment.appendChild(document.createTextNode(text.slice(cursor, match.start)));
+      const span = document.createElement("span");
+      span.className = "dshpl" + (match.kind === "link" ? " link" : "");
+      span.textContent = text.slice(match.start, match.end);
+      span.title = match.kind === "link" ? "Ctrl+点击：在浏览器打开" : "Ctrl+点击：在文件夹中打开";
+      fragment.appendChild(span);
+      cursor = match.end;
+    }
+    if (cursor < text.length) fragment.appendChild(document.createTextNode(text.slice(cursor)));
+    root.replaceChildren(fragment);
+  }
+  decorate("demo-bubble");
+  decorate("demo-bubble-2");
+  document.getElementById("demo-toast").textContent = "路径不存在：C:\\nope\\missing\\file.xyz";
+</script>
+</body>
+</html>

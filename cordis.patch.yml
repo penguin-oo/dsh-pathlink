@@ -1,0 +1,15 @@
+# dsh-pathlink bundle patch.
+#
+# One row hosts both halves of the plugin: the node half provides the
+# `pathlink` Remote service that opens folders in the OS file manager, and the
+# package's `dsh.client` declaration adds the browser half to the web roster
+# (served at /plugins/dsh-pathlink/client.js), which recognizes file paths and
+# links in rendered chat messages and wires Ctrl+click to them.
+#
+# A patch replaces the targeted row's whole `config`, so restate every key.
+
+- insert:
+    - id: pathlink
+      name: 'dsh-pathlink'
+      config:
+        maxPathChars: 1024
