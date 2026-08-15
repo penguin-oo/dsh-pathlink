@@ -1,6 +1,6 @@
 {
   "name": "dsh-pathlink",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ctrl+click file paths and links in DeepSeek Harness chat: paths open their folder in the OS file manager, links open in a new browser tab.",
   "keywords": [
     "dsh",

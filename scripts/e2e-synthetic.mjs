@@ -72,6 +72,14 @@ try {
     paragraph.textContent =
       "试试 D:\\deepseekhrness\\dsh-pathlink\\src\\client\\index.js 和 https://example.com/x 与 ./package.json 不存在路径 C:\\nope\\missing\\file.xyz";
     host.appendChild(paragraph);
+    // Official-renderer-style file mention button (plain click would open the
+    // file itself through the host opener).
+    const mention = document.createElement("code");
+    const button = document.createElement("button");
+    button.className = "fileMention";
+    button.textContent = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+    mention.appendChild(button);
+    host.appendChild(mention);
     document.body.appendChild(host);
   });
   await sleep(1200);
@@ -165,6 +173,23 @@ try {
   }
   if (!toastText.includes("路径不存在")) throw new Error("e2e: not-found toast missing");
   console.log("e2e: [ok] not-found toast shown");
+
+  // 5b. Ctrl+click the file-mention button → routed to folder-open (no toast).
+  await page.evaluate(() => {
+    document.getElementById("dshpl-toast")?.remove();
+    const button = document.querySelector("button.fileMention");
+    if (!button) throw new Error("e2e: fileMention button not found");
+    button.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }),
+    );
+  });
+  await sleep(1200);
+  const mentionToast = await page.evaluate(
+    () => document.getElementById("dshpl-toast")?.textContent ?? "",
+  );
+  console.log("e2e: mention toast:", mentionToast || "(none — folder opened)");
+  if (mentionToast.includes("不存在")) throw new Error("e2e: mention click failed to open");
+  console.log("e2e: [ok] fileMention ctrl+click routed to folder open");
 
   // 6. Plain click (no modifier) must NOT open anything.
   const pagesBefore = browser.targets().filter((target) => target.type() === "page").length;

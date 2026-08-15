@@ -181,9 +181,19 @@ export class PathlinkScanner {
   #handleClick(event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
+    if (!(event.ctrlKey || event.metaKey)) return;
+    // Official renderer file-mention buttons (ui-deliverables et al.) open the
+    // file itself on plain click; the modifier re-routes them to this plugin's
+    // containing-folder behavior for one consistent gesture.
+    const mentionButton = target.closest("button.fileMention");
+    if (mentionButton !== null) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.#onOpenPath((mentionButton.textContent ?? "").trim());
+      return;
+    }
     const span = target.closest(`[${KIND_ATTR}]`);
     if (span === null) return;
-    if (!(event.ctrlKey || event.metaKey)) return;
     event.preventDefault();
     event.stopPropagation();
     const kind = span.getAttribute(KIND_ATTR);
