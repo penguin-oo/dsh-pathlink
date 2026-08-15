@@ -1,5 +1,7 @@
 # dsh-pathlink
 
+> [English](README.md) · [中文](README.zh.md)
+
 **Ctrl+click file paths and links in DeepSeek Harness chat.**
 
 Recognizes file paths and URLs in rendered chat messages (assistant replies, user
@@ -16,10 +18,13 @@ and opens them with **Ctrl+click** (⌘ on macOS):
 Plain clicks stay inert, so text selection and copy are never disturbed. When a
 path does not exist, a small toast explains why instead of failing silently.
 
-![demo](docs/screenshot-demo.png)
+![recognized path in chat](docs/screenshot-recognized.png)
 
-> The screenshot above is from the bundled local demo page (`docs/demo.html`),
-> which reuses the exact production recognizer.
+![ctrl+click tooltip](docs/screenshot-tooltip.png)
+
+> ① A recognized path in a real conversation (dotted underline) · ② Hovering
+> shows the Ctrl+click hint — Ctrl+click opens the containing folder with the
+> file selected.
 
 ## Install
 

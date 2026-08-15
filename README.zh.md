@@ -1,5 +1,7 @@
 # dsh-pathlink
 
+> [中文](README.zh.md) · [English](README.md)
+
 **在 DeepSeek Harness 对话里，Ctrl+点击文件路径与链接。**
 
 自动识别聊天消息（助手回复、用户气泡、代码块、工具卡片）中的文件路径和
@@ -14,10 +16,12 @@ URL，用淡淡的虚线下划线标记，**Ctrl+点击**（macOS 为 ⌘）即�
 普通点击不触发任何行为，不会干扰选中、复制等操作。路径不存在时会弹出
 toast 提示原因，而不是静默失败。
 
-![demo](docs/screenshot-demo.png)
+![消息中的路径识别](docs/screenshot-recognized.png)
 
-> 上图为仓库内置本地演示页（`docs/demo.html`）的截图，演示页复用生产环境
-> 同一套识别逻辑。
+![Ctrl+点击提示](docs/screenshot-tooltip.png)
+
+> ① 真实对话中被识别的路径（虚线下划线）· ② 悬停显示 Ctrl+点击提示，
+> 点击后在文件夹中定位该文件。
 
 ## 安装
 
