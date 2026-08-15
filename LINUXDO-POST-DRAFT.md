@@ -11,7 +11,8 @@
 ## 正文草稿
 
 给 DeepSeek Harness 做的一个小插件 **dsh-pathlink**，已经发布到
-GitHub / npm / npmmirror，并提交了 awesome-deepseek-harness 等目录。
+GitHub / npm / npmmirror，并提交了 awesome-deepseek-harness
+（PR #165）与 awesome-dsh-plugin（PR #409）等目录。
 
 **解决什么问题**：Agent 回复里到处都是文件路径，以前只能手动复制再去
 资源管理器里翻。现在消息里的路径和链接会被自动识别、加一条淡淡的虚线下
