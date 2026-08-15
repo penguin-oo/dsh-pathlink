@@ -16,12 +16,12 @@ URL，用淡淡的虚线下划线标记，**Ctrl+点击**（macOS 为 ⌘）即�
 普通点击不触发任何行为，不会干扰选中、复制等操作。路径不存在时会弹出
 toast 提示原因，而不是静默失败。
 
-![消息中的路径识别](docs/screenshot-recognized.png)
-
 ![Ctrl+点击提示](docs/screenshot-tooltip.png)
 
-> ① 真实对话中被识别的路径（虚线下划线）· ② 悬停显示 Ctrl+点击提示，
-> 点击后在文件夹中定位该文件。
+![消息中的路径识别](docs/screenshot-recognized.png)
+
+> ① 悬停路径显示 Ctrl+点击提示，点击后在文件夹中定位该文件 ·
+> ② 真实对话中被识别的路径（虚线下划线）。
 
 ## 安装
 

@@ -18,13 +18,13 @@ and opens them with **Ctrl+click** (⌘ on macOS):
 Plain clicks stay inert, so text selection and copy are never disturbed. When a
 path does not exist, a small toast explains why instead of failing silently.
 
-![recognized path in chat](docs/screenshot-recognized.png)
-
 ![ctrl+click tooltip](docs/screenshot-tooltip.png)
 
-> ① A recognized path in a real conversation (dotted underline) · ② Hovering
-> shows the Ctrl+click hint — Ctrl+click opens the containing folder with the
-> file selected.
+![recognized path in chat](docs/screenshot-recognized.png)
+
+> ① Hovering a path shows the Ctrl+click hint — Ctrl+click opens the containing
+> folder with the file selected · ② The recognized path in a real conversation
+> (dotted underline).
 
 ## Install
 

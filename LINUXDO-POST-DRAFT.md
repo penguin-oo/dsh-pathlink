@@ -45,10 +45,10 @@ dsh plugin --profile web add dsh-pathlink
 
 ## 图片
 
-两张实测截图在仓库里：
-- https://github.com/penguin-oo/dsh-pathlink/blob/main/docs/screenshot-recognized.png
+两张实测截图在仓库里（顺序：先悬停提示，后识别效果）：
 - https://github.com/penguin-oo/dsh-pathlink/blob/main/docs/screenshot-tooltip.png
+- https://github.com/penguin-oo/dsh-pathlink/blob/main/docs/screenshot-recognized.png
 
 发帖时可以直接引用 raw 链接：
-- https://raw.githubusercontent.com/penguin-oo/dsh-pathlink/main/docs/screenshot-recognized.png
 - https://raw.githubusercontent.com/penguin-oo/dsh-pathlink/main/docs/screenshot-tooltip.png
+- https://raw.githubusercontent.com/penguin-oo/dsh-pathlink/main/docs/screenshot-recognized.png
