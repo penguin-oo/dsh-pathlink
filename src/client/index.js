@@ -102,7 +102,7 @@ async function apply(ctx) {
 // Snippet appended to the document head exactly once: a subtle dotted
 // underline marks recognized spans so users can discover the gesture.
 const STYLE_ID = "dshpl-style";
-if (typeof document !== "undefined" && document.getElementById(STYLE_ID) === null) {
+if (typeof document !== "undefined" && document.head !== null && document.getElementById(STYLE_ID) === null) {
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
