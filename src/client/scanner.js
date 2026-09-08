@@ -18,8 +18,15 @@ const GUARD_ATTR = "data-dshpl-guard";
 
 /** Containing elements that identify rendered conversation content. */
 const FLOW_SELECTOR = "[data-chat-flow], [data-conversation-scroll]";
-/** Elements whose text must never be scanned or wrapped. */
-const SKIP_SELECTOR = "script, style, textarea, input, select, [contenteditable]";
+/**
+ * Elements whose text must never be scanned or wrapped. The composer's
+ * display layers (backdrop / mirror) render the draft as plain DOM text; they
+ * live inside the conversation scroll container, so without an explicit skip
+ * they are scanned while typing and wrapping mid-draft corrupts the display
+ * (freeze / disappearing input box). See issues #1 and #2.
+ */
+const SKIP_SELECTOR =
+  "script, style, textarea, input, select, [contenteditable], [data-input-backdrop], [data-input-mirror], [role='textbox']";
 /** Attribute-presence selector for wrapper spans. */
 const GUARD_SELECTOR = `[${GUARD_ATTR}]`;
 
@@ -86,15 +93,22 @@ export class PathlinkScanner {
   #ingest(records) {
     for (const record of records) {
       if (record.type === "characterData") {
-        this.#dirty.add(record.target);
+        // Gate at ingest time: keystroke churn inside the composer or any
+        // other skipped surface never enters the dirty queue at all.
+        if (isEligible(record.target)) this.#dirty.add(record.target);
         continue;
       }
       for (const added of record.addedNodes) {
-        if (added.nodeType !== 1 && added.nodeType !== 3) continue;
         if (added.nodeType === 3) {
-          this.#dirty.add(added);
+          if (isEligible(added)) this.#dirty.add(added);
           continue;
         }
+        if (added.nodeType !== 1) continue;
+        // Prune subtrees that cannot contain eligible text: additions inside
+        // a skipped surface, or outside every conversation container. The
+        // periodic full sweep remains the backstop for moved subtrees.
+        if (added.closest(SKIP_SELECTOR) !== null) continue;
+        if (!added.matches(FLOW_SELECTOR) && added.closest(FLOW_SELECTOR) === null) continue;
         // Added subtree: collect its text nodes. The text-level processed map
         // makes the walk idempotent, so re-added (moved) subtrees cost a walk
         // but never re-wrap; the periodic full sweep is the final backstop.
@@ -151,6 +165,11 @@ export class PathlinkScanner {
 
   /** Replace one text node with text + span fragments for every match. */
   #wrap(node, matches) {
+    // Race guard: React may have detached or relocated the node between the
+    // eligibility check and this wrap (streaming re-render, composer reset).
+    // Never mutate inside a skipped surface, whatever changed in between.
+    const parent = node.parentNode;
+    if (parent === null || !node.isConnected || parent.closest(SKIP_SELECTOR) !== null) return;
     const fragment = document.createDocumentFragment();
     let cursor = 0;
     for (const match of matches) {
@@ -165,8 +184,7 @@ export class PathlinkScanner {
       cursor = match.end;
     }
     if (cursor < node.data.length) fragment.appendChild(this.#text(node.data.slice(cursor)));
-    const parent = node.parentNode;
-    if (parent !== null) parent.replaceChild(fragment, node);
+    parent.replaceChild(fragment, node);
   }
 
   /** Create a text node already marked as processed (never re-scanned). */
