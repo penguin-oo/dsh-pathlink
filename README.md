@@ -2,7 +2,7 @@
 
 > [English](README.md) · [中文](README.zh.md)
 
-**Ctrl+click file paths and links in DeepSeek Harness chat.**
+**Ctrl+click file paths and links in DeepSeek Harness chat; drop a file to get its path.**
 
 Recognizes file paths and URLs in rendered chat messages (assistant replies, user
 bubbles, code blocks, tool cards), marks them with a subtle dotted underline,
@@ -14,6 +14,17 @@ and opens them with **Ctrl+click** (⌘ on macOS):
   directory itself.
 - **Link → new browser tab** — covers bare URLs the renderer did not linkify
   (e.g. in user bubbles); markdown links already open in new tabs natively.
+
+**Drop or paste any file → its path lands in the composer** (images keep the
+built-in attachment flow):
+
+- the file exists on this machine → its **real path** is inserted
+  (e.g. `D:\proj\src\a.ts`);
+- it cannot be located (USB stick, network drive, unregistered folder) → a copy
+  is saved under `%TEMP%\dsh-drops\` and **that** path is inserted, with a notice
+  saying so;
+- no full-screen "drop images here" overlay and no "images only" rejection —
+  the path just appears where the caret was.
 
 Plain clicks stay inert, so text selection and copy are never disturbed. When a
 path does not exist, a small toast explains why instead of failing silently.
@@ -50,12 +61,23 @@ only surface that can receive the click).
    - Link → opens in a new browser tab.
 3. Relative paths resolve against the session's workspace directory first,
    then the harness working directory; missing paths show a toast.
+4. **Drop any file onto the composer** (or paste a file from the clipboard): its
+   path is inserted at the caret.
 
 ## Config
 
 | Key | Default | Meaning |
 | --- | --- | --- |
 | `maxPathChars` | `1024` | Longest accepted path text, in characters |
+| `dropRoots` | `[]` | Extra search roots for a dropped file (tried first) |
+| `dropMaxDepth` | `6` | Recursion cap for one locate scan |
+| `dropBudgetMs` | `2500` | Time budget for one locate scan |
+| `dropLimit` | `10` | Matches collected per root |
+| `dropDir` | `''` | Where an unlocatable drop is copied; `''` = `%TEMP%\dsh-drops` |
+
+Search order: `dropRoots` → the harness's own workspace list (harvested) →
+process cwd / Desktop / Downloads / Documents. Debug endpoint:
+`GET /pathlink/drop/state`.
 
 ## How it works
 

@@ -1,10 +1,12 @@
 # dsh-pathlink bundle patch.
 #
 # One row hosts both halves of the plugin: the node half provides the
-# `pathlink` Remote service that opens folders in the OS file manager, and the
-# package's `dsh.client` declaration adds the browser half to the web roster
-# (served at /plugins/dsh-pathlink/client.js), which recognizes file paths and
-# links in rendered chat messages and wires Ctrl+click to them.
+# `pathlink` Remote service that opens folders in the OS file manager plus the
+# `/pathlink/drop/*` routes that locate a dropped file on disk; the package's
+# `dsh.client` declaration adds the browser half to the web roster (served at
+# /plugins/dsh-pathlink/client.js), which recognizes file paths and links in
+# rendered chat messages, wires Ctrl+click to them, and turns a dropped or
+# pasted file into its path in the composer.
 #
 # A patch replaces the targeted row's whole `config`, so restate every key.
 
@@ -13,3 +15,10 @@
       name: 'dsh-pathlink'
       config:
         maxPathChars: 1024
+        # Drop/paste side. Extra search roots are tried before the harness's own
+        # workspaces and the cwd/Desktop/Downloads/Documents defaults.
+        dropRoots: []
+        dropMaxDepth: 6      # recursion cap for one locate scan
+        dropBudgetMs: 2500   # time budget for one locate scan
+        dropLimit: 10        # matches collected per root
+        dropDir: ''          # where an unlocatable drop is copied; '' = %TEMP%/dsh-drops

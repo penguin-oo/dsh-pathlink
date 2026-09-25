@@ -1,17 +1,21 @@
 // dsh-pathlink — client half: recognize file paths and URLs in rendered chat
-// messages and open them with Ctrl/⌘+click.
+// messages and open them with Ctrl/⌘+click, and turn a dropped/pasted file into
+// its path.
 //
 //   path  → Host `pathlink` Remote: open the containing folder (or the folder
 //           itself) in the OS file manager, with the file selected.
 //   link  → window.open in a new tab (plain links already open natively;
 //           this covers bare URLs the renderer did not linkify, e.g. user
 //           bubbles, and matches the same Ctrl+click gesture).
+//   drop  → Host `/pathlink/drop/*` routes: locate the dropped file on disk and
+//           put its path in the composer (see drop.js).
 //
 // The whole surface is a DOM layer (see scanner.js for why the renderer seam
 // is not used): zero UI chrome, zero per-message components, one delegated
 // capture-phase listener.
 import { TYPERT_REMOTE } from "../../lib/typert.remote-client.js";
 import { PathlinkScanner } from "./scanner.js";
+import { installDropToPath } from "./drop.js";
 
 /** Cordis service dependencies. */
 const inject = ["remote", "sessions"];
@@ -97,6 +101,9 @@ async function apply(ctx) {
   });
 
   ctx.effect(() => () => scanner.dispose(), "pathlink: scanner lifecycle");
+  // Drop/paste → path: a plain file dropped on the composer lands in the input
+  // as its described path instead of the image-only rejection.
+  ctx.effect(() => installDropToPath({ toast }), "pathlink: drop-to-path lifecycle");
 }
 
 // Snippet appended to the document head exactly once: a subtle dotted
