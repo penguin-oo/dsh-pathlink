@@ -1,6 +1,6 @@
 {
   "name": "dsh-pathlink",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Ctrl+click file paths and links in DeepSeek Harness chat (paths open their folder), and drop or paste any file to get its path inserted in the composer.",
   "keywords": [
     "dsh",
