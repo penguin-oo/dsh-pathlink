@@ -16,32 +16,57 @@ const HOST_BASE = "/pathlink/drop";
 
 const isImage = (file) => typeof file.type === "string" && IMAGE_MEDIA_TYPES.has(file.type.toLowerCase());
 
-/** The composer textarea — hashed class first, any visible textarea as fallback. */
+/**
+ * The composer's editable element.
+ *
+ * dsh 0.1 used a `<textarea class="uV2eYG_input">`; dsh 0.2 replaced it with a
+ * Lexical rich-text editor (`div.uV2eYG_input[data-lexical-editor="true"]`,
+ * contenteditable, role=textbox). All three shapes are accepted so the plugin
+ * keeps working across releases.
+ */
 function findComposer() {
+  const lexical = document.querySelector('[data-lexical-editor="true"]');
+  if (lexical !== null && lexical.offsetParent !== null) return lexical;
+  const editable = [...document.querySelectorAll('[contenteditable="true"][role="textbox"]')]
+    .find((el) => el.offsetParent !== null);
+  if (editable !== undefined) return editable;
   const preferred = document.querySelector("textarea.uV2eYG_input");
   if (preferred !== null) return preferred;
   return [...document.querySelectorAll("textarea")].find((el) => el.offsetParent !== null) ?? null;
 }
 
+/** Current draft text, whichever editor shape is in play. */
+function composerText(element) {
+  return element.tagName === "TEXTAREA" ? (element.value ?? "") : (element.innerText ?? "");
+}
+
 /** Insert text at the caret so the composer's own state machine sees it. */
 function insertIntoComposer(text) {
-  const textarea = findComposer();
-  if (textarea === null) return false;
-  const needsBreak = textarea.value.length > 0 && !textarea.value.endsWith("\n");
+  const target = findComposer();
+  if (target === null) return false;
+  const current = composerText(target);
+  const needsBreak = current.length > 0 && !current.endsWith("\n");
   const payload = (needsBreak ? "\n" : "") + text;
-  textarea.focus();
+  target.focus();
   let inserted = false;
   try {
+    // Works for both a textarea and Lexical's contenteditable: the browser
+    // emits the beforeinput/input pair the editor reconciles from.
     inserted = document.execCommand("insertText", false, payload);
   } catch {
     inserted = false;
   }
-  if (!inserted || !textarea.value.includes(text.split("\n")[0])) {
-    const proto = HTMLTextAreaElement.prototype;
-    const next = textarea.value + payload;
-    Object.getOwnPropertyDescriptor(proto, "value").set.call(textarea, next);
-    textarea.dispatchEvent(new Event("input", { bubbles: true }));
-    textarea.setSelectionRange(next.length, next.length);
+  if (!inserted || !composerText(target).includes(text.split("\n")[0])) {
+    if (target.tagName === "TEXTAREA") {
+      const proto = HTMLTextAreaElement.prototype;
+      const next = current + payload;
+      Object.getOwnPropertyDescriptor(proto, "value").set.call(target, next);
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+      target.setSelectionRange(next.length, next.length);
+    } else {
+      target.appendChild(document.createTextNode(payload));
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+    }
   }
   return true;
 }
